@@ -68,7 +68,9 @@ function agregarProductoAlCarrito(productoNombre , productoPrecio, productoImg){
     filaCarrito.innerHTML = contenidoFilaCarrito
     productoEnCarrito.append(filaCarrito)
     
-    productoEnCarrito.querySelector(".botonCarrito").addEventListener("click", borrarProductoCarrito)
+    filaCarrito.querySelector("button").addEventListener("click", borrarProductoCarrito)
+
+    guardarCarrito()
 
     calcularTotal()
 }
@@ -92,9 +94,18 @@ function calcularTotal(){
 
 function borrarProductoCarrito(event) {
     const botonClickeado = event.target
-    botonClickeado.closest("tr").remove()
+    botonClickeado.closest(".productoFilaCarrito").remove()
     calcularTotal()
+    eliminar()
 }
+
+function eliminar(param) {
+    let item = carrito.find(el => el.id != param)
+    let index = carrito.indexOf(item)
+    carrito.splice(index, 1)
+    localStorage.setItem("carrito", JSON.stringify(carrito)) 
+}
+
 
 function guardarCarrito() {
     localStorage.setItem("carrito", JSON.stringify(carrito))    
