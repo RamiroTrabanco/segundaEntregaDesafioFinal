@@ -1,6 +1,17 @@
 const productos = []
 let carrito = []
 
+
+class Carrito {
+    constructor (nombre, valor ,img)
+    {
+        this.nombre=nombre
+        this.valor=valor
+        this.img=img
+    }
+}
+
+
 class Productos {
     constructor (nombre, valor, stock, id, img){
         this.nombre=nombre
@@ -28,7 +39,7 @@ function agregarProductosAlDom() {
         div.innerHTML = `
         <img src=${el.img} id="productoImg" />
         <p class="productoTitulo">${el.nombre}</p>
-        <p class="productoPrecio negrita">${el.valor}</p>
+        <p class="productoPrecio negrita">$${el.valor}</p>
         <button id="${el.id}" class="botonComprar">Comprar</button>
         `
     container.append(div)
@@ -46,11 +57,11 @@ agregarProductoBoton.forEach(botonAgregarAlCarrito => {
 function botonAgregarClickeado(ev) {
     const boton = ev.target
     const producto = boton.closest(".card")
-    const productoNombre = producto.querySelector(".productoTitulo").textContent;
-    const productoPrecio = producto.querySelector(".productoPrecio").textContent;
-    const productoImg = producto.querySelector("#productoImg").src;
+    const productoNombre = producto.querySelector(".productoTitulo").textContent
+    const productoPrecio = producto.querySelector(".productoPrecio").textContent.replace("$", " ")
+    const productoImg = producto.querySelector("#productoImg").src
 
-    carrito.push(productoPrecio)
+    carrito.push(new Carrito(productoNombre, productoPrecio, productoImg))
 
     agregarProductoAlCarrito(productoNombre , productoPrecio, productoImg)
 }
@@ -60,7 +71,7 @@ function agregarProductoAlCarrito(productoNombre , productoPrecio, productoImg){
     const filaCarrito = document.createElement("tr")
     filaCarrito.className = "productoFilaCarrito"
     const contenidoFilaCarrito = `
-    <td class="marginTop">${productoNombre}</td> 
+    <td class="productoNombreCarrito marginTop">${productoNombre}</td> 
     <td class="marginTop precioProductoCarrito">$${productoPrecio}</td>
     <td> <img src="${productoImg}"/> </td>
     <button class="botonCarrito" type="button">X</button>
@@ -73,6 +84,7 @@ function agregarProductoAlCarrito(productoNombre , productoPrecio, productoImg){
     guardarCarrito()
 
     calcularTotal()
+    guardarCarrito()
 }
 
 function calcularTotal(){
@@ -93,17 +105,19 @@ function calcularTotal(){
 
 
 function borrarProductoCarrito(event) {
-    const botonClickeado = event.target
-    botonClickeado.closest(".productoFilaCarrito").remove()
+    let botonClickeado = event.target
+    let botonClickeadoPrueba = botonClickeado.closest(".productoFilaCarrito")
+    let botonClickeadoPruebaNombre = botonClickeadoPrueba.querySelector(".productoNombreCarrito").innerHTML
+    botonClickeadoPrueba.remove()
+    eliminar(botonClickeadoPruebaNombre)
     calcularTotal()
-    eliminar()
 }
 
 function eliminar(param) {
-    let item = carrito.find(el => el.id != param)
+    let item = carrito.find(el => el.nombre === param)
     let index = carrito.indexOf(item)
     carrito.splice(index, 1)
-    localStorage.setItem("carrito", JSON.stringify(carrito)) 
+    localStorage.setItem("carrito", JSON.stringify(carrito))
 }
 
 
@@ -112,7 +126,8 @@ function guardarCarrito() {
 }
 
 function recuperoCarrito() {
-    if (localStorage.carrito) {
-    carrito = JSON.parse(localStorage.getItem("carrito"))
-    }
-}
+    localStorage.carrito = true ? carrito = JSON.parse(localStorage.getItem("carrito")) : console.log("Bienvenido a T-HAGEN")
+    carrito.forEach(el => {agregarProductoAlCarrito(el.nombre, el.valor, el.img)})
+}   
+
+recuperoCarrito()
